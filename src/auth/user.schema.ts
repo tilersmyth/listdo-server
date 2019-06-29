@@ -16,6 +16,12 @@ const Schema = new mongoose.Schema(
     },
     password: String,
     salt: String,
+    boards: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Board',
+      },
+    ],
   },
   { timestamps: true },
 );
