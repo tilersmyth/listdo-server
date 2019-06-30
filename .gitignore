@@ -35,3 +35,6 @@ lerna-debug.log*
 
 # Generated Typings
 schema.gql
+
+#Environment Variables
+.env

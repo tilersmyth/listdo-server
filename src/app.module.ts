@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongoModule } from './mongo.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TestModule } from './test/test.module';
@@ -9,9 +9,12 @@ import { BoardModule } from './board/board.module';
 
 @Module({
   imports: [
+    MongoModule.forRoot(),
+    GraphQLModule.forRoot({
+      autoSchemaFile: 'schema.gql',
+      context: ({ req, res }) => ({ req, res }),
+    }),
     TestModule,
-    GraphQLModule.forRoot({ autoSchemaFile: 'schema.gql' }),
-    MongooseModule.forRoot('mongodb://localhost/listDo'),
     AuthModule,
     BoardModule,
   ],

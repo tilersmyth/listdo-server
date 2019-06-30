@@ -4,6 +4,4 @@ import { InputType, Field } from 'type-graphql';
 export class CreateInput {
   @Field()
   readonly name: string;
-  @Field()
-  readonly owner: string;
 }

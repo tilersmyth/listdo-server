@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { Request } from 'express';
 import { Board } from './interfaces/board.interface';
 import { UserService } from '../auth/user.service';
 import { User } from '../auth/interfaces/user.interface';
@@ -8,6 +9,7 @@ import { CreateInput } from './inputs/create.input';
 import { CreateBoard } from './interfaces/create.interface';
 import { AddMemberInput } from './inputs/addMember.input';
 import { AddMember } from './interfaces/addMember.interface';
+import { ExpressContext } from '../types/context';
 
 @Injectable()
 export class BoardService {
@@ -16,7 +18,11 @@ export class BoardService {
     private readonly userService: UserService,
   ) {}
 
-  private async userExists(email: string): Promise<User> {
+  private async findUserById(id: string): Promise<User> {
+    return this.userService.findById(id);
+  }
+
+  private async findUserByEmail(email: string): Promise<User> {
     return this.userService.findByEmail(email);
   }
 
@@ -24,14 +30,15 @@ export class BoardService {
     return this.boardModel.findById(id);
   }
 
-  public async create(input: CreateInput): Promise<CreateBoard> {
-    const owner = await this.userExists(input.owner);
+  public async create(
+    input: CreateInput,
+    ctx: ExpressContext,
+  ): Promise<CreateBoard> {
+    const { userId } = ctx.req.session;
 
-    if (!owner) {
-      return { error: 'User does not exist', board: null };
-    }
+    const owner = await this.findUserById(userId);
 
-    Object.assign(input, { owner: owner.id, members: [owner.id] });
+    Object.assign(input, { owner: owner.id, members: [userId] });
     const board = new this.boardModel(input);
     const savedBoard = await board.save();
 
@@ -49,7 +56,7 @@ export class BoardService {
       return { success: false, error: 'Board does not exist' };
     }
 
-    const user = await this.userExists(input.email);
+    const user = await this.findUserByEmail(input.email);
 
     if (!user) {
       return { success: false, error: 'User does not exist' };

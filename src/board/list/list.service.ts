@@ -8,6 +8,7 @@ import { CreateListInput } from './inputs/create.input';
 import { CreateListDto } from './dto/create.dto';
 import { BoardService } from '../board.service';
 import { Board } from '../interfaces/board.interface';
+import { ExpressContext } from '../../types/context';
 
 @Injectable()
 export class ListService {
@@ -17,30 +18,28 @@ export class ListService {
     private readonly boardService: BoardService,
   ) {}
 
+  private async findUserById(id: string): Promise<User> {
+    return this.userService.findById(id);
+  }
+
   private async findBoard(boardId: string): Promise<Board> {
     return this.boardService.findById(boardId);
   }
 
-  private async findUser(email: string): Promise<User> {
-    return this.userService.findByEmail(email);
-  }
+  public async create(
+    input: CreateListInput,
+    ctx: ExpressContext,
+  ): Promise<CreateListDto> {
+    const { userId } = ctx.req.session;
 
-  public async create(input: CreateListInput): Promise<CreateListDto> {
+    const user = await this.findUserById(userId);
+
     const board = await this.findBoard(input.boardId);
 
     if (!board) {
       return {
         success: false,
         error: 'Create list error: board does not exist',
-      };
-    }
-
-    const user = await this.findUser(input.user);
-
-    if (!user) {
-      return {
-        success: false,
-        error: 'Create list error: user does not exist',
       };
     }
 
