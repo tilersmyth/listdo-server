@@ -2,7 +2,7 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './interfaces/user.interface';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterInput } from './inputs/register.input';
 
 @Injectable()
 export class UserService {
@@ -16,7 +16,7 @@ export class UserService {
     return this.userModel.findById(id);
   }
 
-  async create(input: RegisterDto): Promise<User> {
+  async create(input: RegisterInput): Promise<User> {
     const createdUser = new this.userModel(input);
     return createdUser.save();
   }

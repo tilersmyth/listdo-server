@@ -1,11 +1,9 @@
-import { ObjectType, Field, Int } from 'type-graphql';
+import { ObjectType, Field } from 'type-graphql';
 
 @ObjectType()
 export class AuthDto {
-  @Field(() => Int)
-  readonly expiresIn: number;
   @Field()
-  readonly token: string;
+  readonly path: string;
   @Field()
-  readonly userId: string;
+  readonly message: string;
 }

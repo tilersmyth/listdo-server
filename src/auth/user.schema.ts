@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import * as crypto from 'crypto';
-import * as uniqueValidator from 'mongoose-unique-validator';
 
 import { User } from './interfaces/user.interface';
 
@@ -11,8 +10,6 @@ const Schema = new mongoose.Schema(
       lowercase: true,
       required: [true, `can't be blank`],
       match: [/\S+@\S+\.\S+/, 'is invalid'],
-      unique: true,
-      index: true,
     },
     password: String,
     salt: String,
@@ -25,8 +22,6 @@ const Schema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
-Schema.plugin(uniqueValidator);
 
 Schema.pre<User>('save', function(next) {
   if (!this.isModified('password')) {

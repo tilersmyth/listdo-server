@@ -1,7 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Request } from 'express';
 import { Board } from './interfaces/board.interface';
 import { UserService } from '../auth/user.service';
 import { User } from '../auth/interfaces/user.interface';

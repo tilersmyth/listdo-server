@@ -9,8 +9,10 @@ import { UserSchema } from '../auth/user.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Board', schema: BoardSchema }]),
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Board', schema: BoardSchema },
+      { name: 'User', schema: UserSchema },
+    ]),
     ListModule,
   ],
   providers: [BoardResolver, BoardService, UserService],

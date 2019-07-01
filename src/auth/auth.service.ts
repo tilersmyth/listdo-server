@@ -1,57 +1,61 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
 
 import { UserService } from './user.service';
 import { User } from './interfaces/user.interface';
 import { LoginInput } from './inputs/login.input';
 import { RegisterInput } from './inputs/register.input';
-import { Login } from './interfaces/login.interface';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
+import { AuthResponse } from './interfaces/auth.interface';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
-  private async exists(userData: LoginInput): Promise<User> {
-    return this.userService.findByEmail(userData.email);
+  private async findUser(email: string): Promise<User> {
+    return this.userService.findByEmail(email);
   }
 
-  public async register(input: RegisterInput): Promise<User> {
-    return this.userService.create(input);
+  public async register(input: RegisterInput): Promise<AuthResponse | null> {
+    const emailInUse = await this.findUser(input.email);
+
+    if (emailInUse) {
+      return {
+        path: 'email',
+        message: 'email already in use',
+      };
+    }
+
+    await this.userService.create(input);
+
+    return null;
   }
 
-  public async login(input: LoginInput, req: Request): Promise<Login> {
-    const user = await this.exists(input);
+  public async login(
+    input: LoginInput,
+    req: Request,
+  ): Promise<AuthResponse | null> {
+    const user = await this.findUser(input.email);
 
     if (!user) {
-      return { status: 404, auth: null };
+      return {
+        path: 'email',
+        message: 'invalid email or password',
+      };
     }
 
     const validPassword = user.comparePassword(input.password);
 
     if (!validPassword) {
-      return { status: 403, auth: null };
+      return {
+        path: 'email',
+        message: 'invalid email or password',
+      };
     }
 
     req.session.userId = user.id;
 
-    new Logger().log(req.session);
-
-    const payload = `${user.id}`;
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      status: 200,
-      auth: {
-        expiresIn: 3600,
-        token: accessToken,
-        userId: payload,
-      },
-    };
+    return null;
   }
 
   async logout(ctx: ExpressContext): Promise<boolean> {
