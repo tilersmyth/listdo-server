@@ -7,6 +7,7 @@ import { AddMemberInput } from './inputs/addMember.input';
 import { AddMemberDto } from './dto/addMember.dto';
 import { AuthGuard } from '../auth/auth.guard';
 import { ExpressContext } from '../types/context';
+import { AddMemberGuard } from './guards/addMember.guard';
 
 @Resolver()
 export class BoardResolver {
@@ -22,6 +23,7 @@ export class BoardResolver {
   }
 
   @Mutation(() => AddMemberDto)
+  @UseGuards(AddMemberGuard)
   async addMember(@Args('input') input: AddMemberInput) {
     return this.boardService.addMember(input);
   }
