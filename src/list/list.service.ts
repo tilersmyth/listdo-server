@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { List } from './interfaces/list.interface';
-import { UserService } from '../../auth/user.service';
-import { User } from '../../auth/interfaces/user.interface';
+import { UserService } from '../auth/user.service';
+import { User } from '../auth/interfaces/user.interface';
 import { CreateListInput } from './inputs/create.input';
 import { CreateListDto } from './dto/create.dto';
-import { BoardService } from '../board.service';
-import { Board } from '../interfaces/board.interface';
-import { ExpressContext } from '../../types/context';
+import { BoardService } from '../board/board.service';
+import { Board } from '../board/interfaces/board.interface';
+import { ExpressContext } from '../types/context';
 
 @Injectable()
 export class ListService {
