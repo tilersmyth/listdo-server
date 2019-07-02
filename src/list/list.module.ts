@@ -5,18 +5,15 @@ import { ListSchema } from './list.schema';
 import { ListService } from './list.service';
 import { ListResolver } from './list.resolver';
 import { UserService } from '../auth/user.service';
-import { BoardService } from '../board/board.service';
-import { BoardSchema } from '../board/board.schema';
 import { UserSchema } from '../auth/user.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: 'List', schema: ListSchema },
-      { name: 'Board', schema: BoardSchema },
       { name: 'User', schema: UserSchema },
     ]),
   ],
-  providers: [ListResolver, ListService, UserService, BoardService],
+  providers: [ListResolver, ListService, UserService],
 })
 export class ListModule {}

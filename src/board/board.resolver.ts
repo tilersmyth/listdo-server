@@ -5,7 +5,7 @@ import { CreateInput } from './inputs/create.input';
 import { CreateBoardDto } from './dto/create.dto';
 import { AddMemberInput } from './inputs/addMember.input';
 import { AddMemberDto } from './dto/addMember.dto';
-import { AuthGuard } from '../auth/auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { ExpressContext } from '../types/context';
 import { AddMemberGuard } from './guards/addMember.guard';
 

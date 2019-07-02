@@ -7,6 +7,7 @@ import { TestModule } from './test/test.module';
 import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
 import { EmailModule } from './email/email.module';
+import { ListModule } from './list/list.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EmailModule } from './email/email.module';
     TestModule,
     AuthModule,
     BoardModule,
+    ListModule,
     EmailModule,
   ],
   controllers: [AppController],

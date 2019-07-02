@@ -13,7 +13,7 @@ export class UserService {
   }
 
   async findById(id: string): Promise<User> {
-    return this.userModel.findById(id);
+    return this.userModel.findById(id).select('-password -salt');
   }
 
   async create(input: RegisterInput): Promise<User> {

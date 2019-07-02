@@ -9,20 +9,25 @@ import { CreateBoard } from './interfaces/create.interface';
 import { AddMemberInput } from './inputs/addMember.input';
 import { AddMember } from './interfaces/addMember.interface';
 import { ExpressContext } from '../types/context';
+import { ListService } from '../list/list.service';
 
 @Injectable()
 export class BoardService {
   constructor(
     @InjectModel('Board') private readonly boardModel: Model<Board>,
     private readonly userService: UserService,
+    private readonly listService: ListService,
   ) {}
-
-  private async findUserById(id: string): Promise<User> {
-    return this.userService.findById(id);
-  }
 
   private async findUserByEmail(email: string): Promise<User> {
     return this.userService.findByEmail(email);
+  }
+
+  private async createDefaultList(boardId: string, userId: string) {
+    return this.listService.create(
+      { boardId, name: 'Default', slug: 'default' },
+      userId,
+    );
   }
 
   async findById(id: string): Promise<Board> {
@@ -33,17 +38,19 @@ export class BoardService {
     input: CreateInput,
     ctx: ExpressContext,
   ): Promise<CreateBoard> {
-    const { userId } = ctx.req.session;
+    const { user } = ctx.req.session;
 
-    const owner = await this.findUserById(userId);
+    Object.assign(input, { owner: user.id, members: [user.id] });
 
-    Object.assign(input, { owner: owner.id, members: [userId] });
     const board = new this.boardModel(input);
     const savedBoard = await board.save();
 
     // Save board to user schema
-    owner.boards = [savedBoard.id, ...owner.boards];
-    await owner.save();
+    user.boards = [savedBoard.id, ...user.boards];
+    await user.save();
+
+    // Create default list unique to user on new board
+    await this.createDefaultList(savedBoard.id, user.id);
 
     return { error: null, board: savedBoard };
   }
@@ -70,6 +77,9 @@ export class BoardService {
 
     user.boards = [board.id, ...user.boards];
     await user.save();
+
+    // Create default list unique to user on new board
+    await this.createDefaultList(board.id, user.id);
 
     return { success: true, error: null };
   }

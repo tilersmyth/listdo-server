@@ -6,4 +6,6 @@ export class CreateListInput {
   readonly boardId: string;
   @Field()
   readonly name: string;
+  @Field({ nullable: true })
+  readonly slug?: string;
 }
