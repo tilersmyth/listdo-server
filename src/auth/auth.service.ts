@@ -13,7 +13,7 @@ export class AuthService {
   constructor(private readonly userService: UserService) {}
 
   private async findUser(email: string): Promise<User> {
-    return this.userService.findByEmail(email);
+    return this.userService.findUserAuth(email);
   }
 
   public async register(input: RegisterInput): Promise<AuthResponse | null> {

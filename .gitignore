@@ -36,5 +36,8 @@ lerna-debug.log*
 # Generated Typings
 schema.gql
 
-#Environment Variables
+# Environment Variables
 .env
+
+# Mongo Replica Sets
+/data

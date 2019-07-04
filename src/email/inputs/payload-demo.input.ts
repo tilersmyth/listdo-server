@@ -1,15 +1,19 @@
 import { InputType, Field } from 'type-graphql';
+import { UserInput } from '../../auth/inputs/user.input';
+import { UserProfile } from '../../auth/interfaces/user-profile.interface';
 
 @InputType()
 export class PayloadDemoInput {
   @Field()
   readonly messageId: string;
   @Field()
-  readonly from: string;
-  @Field(() => [String])
-  readonly to: string[];
-  @Field(() => [String])
-  readonly cc: string[];
+  readonly replyId: string;
+  @Field(() => UserInput)
+  readonly from: UserProfile;
+  @Field(() => [UserInput])
+  readonly to: UserProfile[];
+  @Field(() => [UserInput])
+  readonly cc: UserProfile[];
   @Field()
   readonly subject: string;
   @Field({ nullable: true })

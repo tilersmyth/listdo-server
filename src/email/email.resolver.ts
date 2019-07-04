@@ -8,6 +8,6 @@ export class EmailResolver {
 
   @Mutation(() => Boolean)
   async createDemoEmail(@Args('input') input: CreateDemoInput) {
-    return this.emailService.create(input);
+    return this.emailService.createDemo(input);
   }
 }

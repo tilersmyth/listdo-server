@@ -1,8 +1,11 @@
+import { UserProfile } from '../../auth/interfaces/user-profile.interface';
+
 interface Payload {
   messageId: string;
-  from: string;
-  to: string[];
-  cc: string[];
+  replyId: string;
+  from: UserProfile;
+  to: UserProfile[];
+  cc: UserProfile[];
   subject: string;
   bodyText: string | null;
   bodyHtml: string | null;

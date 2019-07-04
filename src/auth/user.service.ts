@@ -8,8 +8,12 @@ import { RegisterInput } from './inputs/register.input';
 export class UserService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
-  async findByEmail(email: string): Promise<User> {
+  async findUserAuth(email: string): Promise<User> {
     return this.userModel.findOne({ email });
+  }
+
+  async findByEmail(email: string): Promise<User> {
+    return this.userModel.findOne({ email }).select('-password -salt');
   }
 
   async findById(id: string): Promise<User> {

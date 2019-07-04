@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { BoardModule } from './board/board.module';
 import { EmailModule } from './email/email.module';
 import { ListModule } from './list/list.module';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ListModule } from './list/list.module';
     BoardModule,
     ListModule,
     EmailModule,
+    TaskModule,
   ],
   controllers: [AppController],
   providers: [AppService],
