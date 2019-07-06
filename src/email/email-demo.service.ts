@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateDemo } from './interfaces/create-demo.interface';
 import { Email } from './interfaces/email.interface';
 import { Task } from '../task/interfaces/task.interface';
+import { ListService } from '../list/list.service';
 
 @Injectable()
 export class EmailDemoService {
@@ -13,7 +14,12 @@ export class EmailDemoService {
   constructor(
     @InjectModel('Email') private readonly emailModel: Model<Email>,
     @InjectModel('Task') private readonly taskModel: Model<Task>,
+    private readonly listService: ListService,
   ) {}
+
+  private async taskList(userId: string, slug: string) {
+    return this.listService.findOneByUser(userId, slug);
+  }
 
   private async createTask(
     userId: string,
@@ -26,6 +32,8 @@ export class EmailDemoService {
     task.email = email.id;
     task.board = email.board;
     task.role = role;
+    const list = await this.taskList(userId, email.list);
+    task.list = list.id;
     const savedTask = await task.save({ session });
     this.logger.log(`saved task (${role}): ${savedTask.id}`);
   }

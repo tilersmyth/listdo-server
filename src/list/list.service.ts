@@ -21,4 +21,11 @@ export class ListService {
 
     return { success: true, error: null };
   }
+
+  public async findOneByUser(userId: string, slug: string): Promise<List> {
+    return this.listModel.findOne({
+      user: userId,
+      $or: [{ slug }, { slug: 'default' }],
+    });
+  }
 }

@@ -6,7 +6,7 @@ export const EmailSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Board',
     },
-    list: String,
+    list: { type: String, default: '' },
     initiator: {
       email: String,
       user: {
