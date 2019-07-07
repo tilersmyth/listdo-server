@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
 
-@Module({})
+import { TaskResolver } from './task.resolver';
+
+@Module({
+  providers: [TaskResolver],
+})
 export class TaskModule {}

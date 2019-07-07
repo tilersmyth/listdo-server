@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { GraphQLModule } from '@nestjs/graphql';
+import { GraphQLModule } from './graphql.module';
 import { MongoModule } from './mongo.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,20 +9,19 @@ import { BoardModule } from './board/board.module';
 import { EmailModule } from './email/email.module';
 import { ListModule } from './list/list.module';
 import { TaskModule } from './task/task.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 
 @Module({
   imports: [
     MongoModule.forRoot(),
-    GraphQLModule.forRoot({
-      autoSchemaFile: 'schema.gql',
-      context: ({ req, res }) => ({ req, res }),
-    }),
+    GraphQLModule.forRootAsync(),
     TestModule,
     AuthModule,
     BoardModule,
     ListModule,
     EmailModule,
     TaskModule,
+    SubscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

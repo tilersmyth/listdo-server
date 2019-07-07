@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Request } from 'express';
+import * as mongoose from 'mongoose';
 
 import { UserService } from './user.service';
 import { User } from './interfaces/user.interface';
@@ -53,7 +54,8 @@ export class AuthService {
       };
     }
 
-    req.session.userId = user.id;
+    // Wrap in ObjectId for equality testing throughout app
+    req.session.userId = mongoose.Types.ObjectId(user.id);
 
     return null;
   }

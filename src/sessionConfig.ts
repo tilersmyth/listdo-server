@@ -1,8 +1,16 @@
 import * as Store from 'connect-redis';
 import * as session from 'express-session';
 
-export const express = (store: Store.RedisStore) =>
-  session({
+import { redis } from './redis';
+
+export const sessionConfig = () => {
+  const RedisStore = Store(session);
+
+  const store = new RedisStore({
+    client: redis as any,
+  });
+
+  return session({
     store,
     name: 'listDo',
     secret: process.env.SESSION_SECRET,
@@ -15,3 +23,4 @@ export const express = (store: Store.RedisStore) =>
       maxAge: 1000 * 60 * 60 * 24 * 365,
     },
   });
+};
