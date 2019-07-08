@@ -40,7 +40,10 @@ export class BoardService {
   ): Promise<CreateBoard> {
     const { user } = ctx.req.session;
 
-    Object.assign(input, { owner: user.id, members: [user.id] });
+    Object.assign(input, {
+      owner: user.id,
+      members: [{ user: user.id, email: user.email }],
+    });
 
     const board = new this.boardModel(input);
     const savedBoard = await board.save();
@@ -72,7 +75,7 @@ export class BoardService {
       return { success: false, error: 'User is already board member' };
     }
 
-    board.members = [user.id, ...board.members];
+    board.members = [{ user: user.id, email: input.email }, ...board.members];
     await board.save();
 
     user.boards = [board.id, ...user.boards];

@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request } from 'express';
+import * as mongoose from 'mongoose';
 
 import { BoardService } from '../board.service';
 
@@ -22,7 +23,8 @@ export class AddMemberGuard implements CanActivate {
     }
 
     const req: Request = ctx.getContext().req;
-    const { userId } = req.session;
+
+    const userId = mongoose.Types.ObjectId(req.session.userId);
 
     return userId.equals(board.owner);
   }

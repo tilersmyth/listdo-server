@@ -10,6 +10,7 @@ import { EmailModule } from './email/email.module';
 import { ListModule } from './list/list.module';
 import { TaskModule } from './task/task.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { SendGridModule } from './send-grid/send-grid.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     EmailModule,
     TaskModule,
     SubscriptionsModule,
+    SendGridModule,
   ],
   controllers: [AppController],
   providers: [AppService],
