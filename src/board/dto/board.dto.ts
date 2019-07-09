@@ -6,4 +6,6 @@ export class BoardDto {
   readonly name: string;
   @Field()
   readonly owner: string;
+  @Field()
+  readonly slug: string;
 }

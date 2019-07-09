@@ -12,6 +12,10 @@ export class UserService {
     return this.userModel.findOne({ email });
   }
 
+  async count(args: any): Promise<number> {
+    return this.userModel.countDocuments({ ...args });
+  }
+
   async find(): Promise<User[]> {
     return this.userModel.find();
   }

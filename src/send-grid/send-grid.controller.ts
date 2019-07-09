@@ -1,18 +1,16 @@
-import {
-  Controller,
-  Post,
-  UseInterceptors,
-  Body,
-  Logger,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Post, Logger, Req } from '@nestjs/common';
 
 @Controller('send-grid')
 export class SendGridController {
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
-  test(@Body() modelData: any) {
-    new Logger().log(modelData);
+  test(@Req() request: any) {
+    if (request.inbound.errors.length > 0) {
+      new Logger().warn(request.inbound.errors);
+      return;
+    }
+
+    new Logger().log('SUCCESS');
+    new Logger().debug(request.inbound);
     return;
   }
 }

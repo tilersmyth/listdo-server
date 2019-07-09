@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as slugify from 'slug';
+
 import { Board } from './interfaces/board.interface';
 import { UserService } from '../auth/user.service';
 import { User } from '../auth/interfaces/user.interface';
@@ -34,6 +36,10 @@ export class BoardService {
     return this.boardModel.findById(id);
   }
 
+  async findBySlug(slug: string): Promise<Board> {
+    return this.boardModel.findOne({ slug });
+  }
+
   public async create(
     input: CreateInput,
     ctx: ExpressContext,
@@ -46,6 +52,9 @@ export class BoardService {
     });
 
     const board = new this.boardModel(input);
+
+    // to do: ensure slug is unique
+    board.slug = slugify(input.name, { lower: true });
     const savedBoard = await board.save();
 
     // Save board to user schema
