@@ -8,6 +8,7 @@ import { UserSchema } from '../auth/user.schema';
 import { TaskSchema } from '../task/task.schema';
 import { ListSchema } from '../list/list.schema';
 import { ListService } from '../list/list.service';
+import { EmailService } from './email.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { ListService } from '../list/list.service';
       { name: 'List', schema: ListSchema },
     ]),
   ],
-  providers: [EmailResolver, EmailDemoService, UserService, ListService],
+  providers: [EmailResolver, EmailDemoService, UserService, ListService, EmailService],
 })
 export class EmailModule {}

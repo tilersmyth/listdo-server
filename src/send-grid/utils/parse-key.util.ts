@@ -6,7 +6,6 @@ export const parseKey = [
   },
   {
     key: 'from',
-    rename: 'initiator',
     parse: 'from.value',
   },
   {

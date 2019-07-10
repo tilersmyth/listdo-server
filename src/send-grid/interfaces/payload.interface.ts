@@ -2,7 +2,7 @@ import { ParseMember } from './member.interface';
 import { ParseListdo } from './listdo.interface';
 
 export interface ParsePayload {
-  initiator: ParseMember[];
+  initiator: ParseMember;
   partner: ParseMember[];
   observer: ParseMember[];
   subject: string;
@@ -11,4 +11,8 @@ export interface ParsePayload {
   listdo: ParseListdo;
   messageId: string;
   replyId?: string;
+}
+
+export interface ParsePayloadRaw extends ParsePayload {
+  from: ParseMember[];
 }

@@ -89,23 +89,17 @@ export class MemberGuardMiddleware implements NestMiddleware {
     
     */
 
-    const initiatorAuth = this.isMember(payload.initiator, payload.listdo);
+    if (!payload.listdo.board.members.includes(payload.initiator.user.id)) {
+      req.inbound.errors = [
+        {
+          path: 'inbound_parse_error',
+          message: `${payload.initiator.address} is not authorized for '${payload.listdo.board.name}' board`,
+        },
+      ];
 
-    if (initiatorAuth.auth.length === 0) {
-      req.inbound.errors = initiatorAuth.notAuth;
       next();
       return;
     }
-
-    if (initiatorAuth.notAuth.length > 0) {
-      req.inbound.warnings = [
-        ...initiatorAuth.notAuth,
-        ...req.inbound.warnings,
-      ];
-    }
-
-    // Reset initiator prop as it may have filtered out non-authorized members
-    req.inbound.payload.initiator = initiatorAuth.auth;
 
     /*
 

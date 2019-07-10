@@ -3,7 +3,12 @@ import { Response, NextFunction } from 'express';
 import { simpleParser, ParsedMail } from 'mailparser';
 
 import { parseKey } from '../utils/parse-key.util';
-import { ParseRequest, ParseListdo, ParsePayload } from '../interfaces';
+import {
+  ParseRequest,
+  ParseListdo,
+  ParsePayload,
+  ParsePayloadRaw,
+} from '../interfaces';
 
 @Injectable()
 export class ParseMiddleware implements NestMiddleware {
@@ -37,8 +42,17 @@ export class ParseMiddleware implements NestMiddleware {
     const parsedEmail = await simpleParser(email);
     const payload = Object.keys(parsedEmail).reduce(
       this.parseReduce.bind(null, parsedEmail),
-      {} as ParsePayload,
+      {} as ParsePayloadRaw,
     );
+
+    if (payload.from.length > 1) {
+      new Logger('Initiator warning').warn(
+        'Multiple initiators - assigning first one to task',
+      );
+    }
+
+    payload.initiator = payload.from[0];
+    delete payload.from;
 
     payload.listdo = this.parseEnvelope(envelope);
 

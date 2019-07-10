@@ -17,8 +17,8 @@ export interface Email extends Document {
   board: string;
   list: string | null;
   intiator: UserProfile;
-  partners: UserProfile[];
-  observers: UserProfile[];
+  partner: UserProfile[];
+  observer: UserProfile[];
   removed: UserProfile[];
   messageId: string;
   replyId: string;

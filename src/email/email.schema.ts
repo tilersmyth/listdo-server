@@ -7,14 +7,7 @@ export const EmailSchema = new mongoose.Schema(
       ref: 'Board',
     },
     list: { type: String, default: '' },
-    initiator: {
-      email: String,
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    },
-    partners: [
+    initiator: [
       {
         email: String,
         user: {
@@ -23,7 +16,16 @@ export const EmailSchema = new mongoose.Schema(
         },
       },
     ],
-    observers: [
+    partner: [
+      {
+        email: String,
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      },
+    ],
+    observer: [
       {
         email: String,
         user: {

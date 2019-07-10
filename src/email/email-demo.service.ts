@@ -55,8 +55,8 @@ export class EmailDemoService {
         const email = new this.emailModel();
         email.board = input.board;
         email.intiator = input.payload.from;
-        email.partners = input.payload.to;
-        email.observers = input.payload.cc;
+        email.partner = input.payload.to;
+        email.observer = input.payload.cc;
         email.messageId = input.payload.messageId;
         email.replyId = input.payload.replyId;
         email.subject = input.payload.subject;
