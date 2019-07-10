@@ -10,11 +10,8 @@ export const BoardSchema = new mongoose.Schema(
     },
     members: [
       {
-        email: String,
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
       },
     ],
   },

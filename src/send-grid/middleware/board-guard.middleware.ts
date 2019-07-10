@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 
 import { BoardService } from '../../board/board.service';
-import { ParseRequest } from '../types';
+import { ParseRequest } from '../interfaces';
 
 @Injectable()
 export class BoardGuardMiddleware implements NestMiddleware {

@@ -3,7 +3,7 @@ import { Response, NextFunction } from 'express';
 import { simpleParser, ParsedMail } from 'mailparser';
 
 import { parseKey } from '../utils/parse-key.util';
-import { ParseRequest, ParseListdo, ParsePayload } from '../types';
+import { ParseRequest, ParseListdo, ParsePayload } from '../interfaces';
 
 @Injectable()
 export class ParseMiddleware implements NestMiddleware {

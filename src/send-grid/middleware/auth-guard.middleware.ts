@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 
 import { UserService } from '../../auth/user.service';
-import { ParseRequest, ParseMember, ParseInbound } from '../types';
+import { ParseRequest, ParseMember, ParseInbound } from '../interfaces';
 
 @Injectable()
 export class AuthGuardMiddleware implements NestMiddleware {

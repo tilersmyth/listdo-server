@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import * as slugify from 'slug';
+import slugify from 'slug';
 
 import { Board } from './interfaces/board.interface';
 import { UserService } from '../auth/user.service';
@@ -48,7 +48,7 @@ export class BoardService {
 
     Object.assign(input, {
       owner: user.id,
-      members: [{ user: user.id, email: user.email }],
+      members: [user.id],
     });
 
     const board = new this.boardModel(input);
@@ -84,7 +84,7 @@ export class BoardService {
       return { success: false, error: 'User is already board member' };
     }
 
-    board.members = [{ user: user.id, email: input.email }, ...board.members];
+    board.members = [user.id, ...board.members];
     await board.save();
 
     user.boards = [board.id, ...user.boards];
