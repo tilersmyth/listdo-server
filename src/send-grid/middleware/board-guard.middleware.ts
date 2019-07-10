@@ -1,11 +1,8 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 
 import { BoardService } from '../../board/board.service';
-
-interface ParseRequest extends Request {
-  inbound: any;
-}
+import { ParseRequest } from '../types';
 
 @Injectable()
 export class BoardGuardMiddleware implements NestMiddleware {
@@ -19,7 +16,7 @@ export class BoardGuardMiddleware implements NestMiddleware {
 
     const { listdo } = req.inbound.payload;
 
-    const boardExists = await this.boardService.findBySlug(listdo.board);
+    const boardExists = await this.boardService.findBySlug(listdo.boardSlug);
     if (!boardExists) {
       req.inbound.errors = [
         {

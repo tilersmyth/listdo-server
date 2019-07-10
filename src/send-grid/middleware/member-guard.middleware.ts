@@ -1,17 +1,26 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 
-interface ParseRequest extends Request {
-  inbound: any;
+import {
+  ParseRequest,
+  ParseMember,
+  ParseException,
+  ParseListdo,
+} from '../types';
+import { Member } from '../../board/interfaces/board.interface';
+
+interface MemberReduce {
+  auth: ParseMember[];
+  notAuth: ParseException[];
 }
 
 @Injectable()
 export class MemberGuardMiddleware implements NestMiddleware {
-  private isMember(group: any, listdo: any) {
+  private isMember(group: ParseMember[], listdo: ParseListdo) {
     return group.reduce(
-      (acc: any, user: any) => {
+      (acc: MemberReduce, user: ParseMember) => {
         const isMember = listdo.board.members.find(
-          (member: any) => member.email === user.email,
+          (member: Member) => member.email === user.address,
         );
 
         if (isMember) {
@@ -19,21 +28,21 @@ export class MemberGuardMiddleware implements NestMiddleware {
           return acc;
         }
 
-        if (user.email === listdo.email) {
+        if (user.address === listdo.address) {
           return acc;
         }
 
         acc.notAuth = [
           {
             path: 'inbound_parse_error',
-            message: `${user.email} is not authorized for '${listdo.board.name}' board`,
+            message: `${user.address} is not authorized for '${listdo.board.name}' board`,
           },
           ...acc.notAuth,
         ];
 
         return acc;
       },
-      { auth: [], notAuth: [] },
+      { auth: [], notAuth: [] } as MemberReduce,
     );
   }
 
@@ -44,6 +53,12 @@ export class MemberGuardMiddleware implements NestMiddleware {
     }
 
     const { payload } = req.inbound;
+
+    /*
+
+      INITIATOR
+    
+    */
 
     const initiatorAuth = this.isMember(payload.initiator, payload.listdo);
 
@@ -60,11 +75,20 @@ export class MemberGuardMiddleware implements NestMiddleware {
     }
 
     if (initiatorAuth.notAuth.length > 0) {
-      req.inbound.warnings = [initiatorAuth.notAuth, ...req.inbound.warnings];
+      req.inbound.warnings = [
+        ...initiatorAuth.notAuth,
+        ...req.inbound.warnings,
+      ];
     }
 
     // Reset initiator prop as it may have filtered out non-authorized members
     req.inbound.payload.initiator = initiatorAuth.auth;
+
+    /*
+
+      PARTNER
+    
+    */
 
     const partnerAuth = this.isMember(payload.partner, payload.listdo);
 
@@ -81,11 +105,26 @@ export class MemberGuardMiddleware implements NestMiddleware {
     }
 
     if (partnerAuth.notAuth.length > 0) {
-      req.inbound.warnings = [partnerAuth.notAuth, ...req.inbound.warnings];
+      req.inbound.warnings = [...partnerAuth.notAuth, ...req.inbound.warnings];
     }
 
     // Reset partner prop as it may have filtered out non-authorized members
-    req.inbound.payload.initiator = partnerAuth.auth;
+    req.inbound.payload.partner = partnerAuth.auth;
+
+    /*
+
+      OBSERVER
+    
+    */
+
+    const observerAuth = this.isMember(payload.observer, payload.listdo);
+
+    if (observerAuth.notAuth.length > 0) {
+      req.inbound.warnings = [...observerAuth.notAuth, ...req.inbound.warnings];
+    }
+
+    // Reset partner prop as it may have filtered out non-authorized members
+    req.inbound.payload.observer = observerAuth.auth;
 
     next();
   }

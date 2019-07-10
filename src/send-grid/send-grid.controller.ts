@@ -4,13 +4,18 @@ import { Controller, Post, Logger, Req } from '@nestjs/common';
 export class SendGridController {
   @Post()
   test(@Req() request: any) {
-    if (request.inbound.errors.length > 0) {
-      new Logger().warn(request.inbound.errors);
-      return;
+    const { payload, errors, warnings } = request.inbound;
+
+    if (errors.length > 0) {
+      new Logger('ERROR').warn(errors);
+      return true;
     }
 
-    new Logger().log('SUCCESS');
-    new Logger().debug(request.inbound);
-    return;
+    if (warnings.length > 0) {
+      new Logger('WARNING').warn(warnings);
+    }
+
+    new Logger('PAYLOAD').debug(payload);
+    return true;
   }
 }

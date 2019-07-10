@@ -1,19 +1,16 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 
 import { UserService } from '../../auth/user.service';
-
-interface ParseRequest extends Request {
-  inbound: any;
-}
+import { ParseRequest, ParseMember, ParseInbound } from '../types';
 
 @Injectable()
 export class AuthGuardMiddleware implements NestMiddleware {
   constructor(private readonly userService: UserService) {}
 
   private initiatorReduce = async (
-    accumulator: any,
-    initiator: any,
+    accumulator: Promise<ParseInbound>,
+    initiator: ParseMember,
     index: number,
   ) => {
     const acc = await accumulator;
@@ -31,7 +28,7 @@ export class AuthGuardMiddleware implements NestMiddleware {
       return acc;
     }
 
-    acc.payload.initiator[index] = userExists;
+    acc.payload.initiator[index].user = userExists;
     return acc;
   };
 

@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 
-interface Member {
+export interface Member {
   email: string;
   user: string;
 }

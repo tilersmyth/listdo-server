@@ -1,16 +1,13 @@
 import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
-import { simpleParser } from 'mailparser';
+import { Response, NextFunction } from 'express';
+import { simpleParser, ParsedMail } from 'mailparser';
 
 import { parseKey } from '../utils/parse-key.util';
-
-interface ParseRequest extends Request {
-  inbound: any;
-}
+import { ParseRequest, ParseListdo, ParsePayload } from '../types';
 
 @Injectable()
 export class ParseMiddleware implements NestMiddleware {
-  private parseReduce(email: any, acc: any, prop: string) {
+  private parseReduce(email: ParsedMail, acc: ParsePayload, prop: string) {
     const keyExists = parseKey.find(key => key.key === prop);
 
     if (keyExists) {
@@ -21,14 +18,14 @@ export class ParseMiddleware implements NestMiddleware {
     return acc;
   }
 
-  private parseEnvelope(rawEnvelope: string) {
+  private parseEnvelope(rawEnvelope: string): ParseListdo {
     const envelope = JSON.parse(rawEnvelope);
     const address = envelope.to[0];
     const local = address.substr(0, address.indexOf('@'));
     const split = local.split('.');
 
     return {
-      board: split[0],
+      boardSlug: split[0],
       list: split[1],
       address,
     };
@@ -38,9 +35,9 @@ export class ParseMiddleware implements NestMiddleware {
     const { email, envelope } = req.body;
 
     const parsedEmail = await simpleParser(email);
-    const payload: any = Object.keys(parsedEmail).reduce(
+    const payload = Object.keys(parsedEmail).reduce(
       this.parseReduce.bind(null, parsedEmail),
-      {},
+      {} as ParsePayload,
     );
 
     payload.listdo = this.parseEnvelope(envelope);
