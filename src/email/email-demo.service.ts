@@ -1,4 +1,4 @@
-import { Injectable, Logger, LoggerService } from '@nestjs/common';
+import { Injectable, Logger, LoggerService, Inject } from '@nestjs/common';
 import { Model, ClientSession } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { PubSub } from 'graphql-subscriptions';
@@ -7,7 +7,7 @@ import { CreateDemo } from './interfaces/create-demo.interface';
 import { Email } from './interfaces/email.interface';
 import { Task } from '../task/interfaces/task.interface';
 import { ListService } from '../list/list.service';
-import { NEW_TASK } from '../constants';
+import { NEW_TASK, PUBSUB } from '../constants';
 
 @Injectable()
 export class EmailDemoService {
@@ -16,6 +16,7 @@ export class EmailDemoService {
   constructor(
     @InjectModel('Email') private readonly emailModel: Model<Email>,
     @InjectModel('Task') private readonly taskModel: Model<Task>,
+    @Inject(PUBSUB) private readonly pubSub: PubSub,
     private readonly listService: ListService,
   ) {}
 
@@ -28,7 +29,7 @@ export class EmailDemoService {
     email: Email,
     role: 'initiator' | 'partner' | 'observer' | 'removed',
     session: ClientSession,
-    pubSub: PubSub,
+    // pubSub: PubSub,
   ): Promise<void> {
     const task = new this.taskModel();
     task.user = userId;
@@ -39,14 +40,14 @@ export class EmailDemoService {
     task.list = list.id;
     const savedTask = await task.save({ session });
 
-    await pubSub.publish(NEW_TASK, {
+    await this.pubSub.publish(NEW_TASK, {
       newTask: savedTask,
     });
 
     this.logger.log(`saved task (${role}): ${savedTask.id}`);
   }
 
-  async createDemo(input: CreateDemo, pubSub: PubSub): Promise<boolean> {
+  async createDemo(input: CreateDemo): Promise<boolean> {
     try {
       const session = await this.emailModel.db.startSession();
       session.startTransaction();
@@ -74,18 +75,11 @@ export class EmailDemoService {
           savedEmail,
           'initiator',
           session,
-          pubSub,
         );
 
         // Add task to each "partner"
         for (const user of input.payload.to) {
-          await this.createTask(
-            user.id,
-            savedEmail,
-            'partner',
-            session,
-            pubSub,
-          );
+          await this.createTask(user.id, savedEmail, 'partner', session);
         }
 
         await session.commitTransaction();

@@ -9,6 +9,7 @@ import { TaskSchema } from '../task/task.schema';
 import { ListSchema } from '../list/list.schema';
 import { ListService } from '../list/list.service';
 import { EmailService } from './email.service';
+import { pubSubService } from '../subscriptions/pubsub.service';
 
 @Module({
   imports: [
@@ -19,6 +20,13 @@ import { EmailService } from './email.service';
       { name: 'List', schema: ListSchema },
     ]),
   ],
-  providers: [EmailResolver, EmailDemoService, UserService, ListService, EmailService],
+  providers: [
+    EmailResolver,
+    EmailDemoService,
+    UserService,
+    ListService,
+    EmailService,
+    pubSubService,
+  ],
 })
 export class EmailModule {}

@@ -12,8 +12,12 @@ import { BoardSchema } from '../board/board.schema';
 import { BoardService } from '../board/board.service';
 import { ListSchema } from '../list/list.schema';
 import { ListService } from '../list/list.service';
+import { EmailSchema } from '../email/email.schema';
+import { EmailService } from '../email/email.service';
+import { TaskSchema } from '../task/task.schema';
 import { BoardGuardMiddleware } from './middleware/board-guard.middleware';
 import { MemberGuardMiddleware } from './middleware/member-guard.middleware';
+import { pubSubService } from '../subscriptions/pubsub.service';
 
 @Module({
   imports: [
@@ -21,10 +25,19 @@ import { MemberGuardMiddleware } from './middleware/member-guard.middleware';
       { name: 'User', schema: UserSchema },
       { name: 'Board', schema: BoardSchema },
       { name: 'List', schema: ListSchema },
+      { name: 'Email', schema: EmailSchema },
+      { name: 'Task', schema: TaskSchema },
     ]),
   ],
   controllers: [SendGridController],
-  providers: [SendGridService, UserService, BoardService, ListService],
+  providers: [
+    SendGridService,
+    UserService,
+    BoardService,
+    ListService,
+    EmailService,
+    pubSubService,
+  ],
 })
 export class SendGridModule {
   private multer = multer();

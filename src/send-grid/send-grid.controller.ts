@@ -1,9 +1,13 @@
 import { Controller, Post, Logger, Req } from '@nestjs/common';
 
+import { EmailService } from '../email/email.service';
+
 @Controller('send-grid')
 export class SendGridController {
+  constructor(private readonly emailService: EmailService) {}
+
   @Post()
-  test(@Req() request: any) {
+  async test(@Req() request: any) {
     const { payload, errors, warnings } = request.inbound;
 
     if (errors.length > 0) {
@@ -15,7 +19,8 @@ export class SendGridController {
       new Logger('WARNING').warn(warnings);
     }
 
-    new Logger('PAYLOAD').debug(payload);
+    await this.emailService.create(payload);
+
     return true;
   }
 }

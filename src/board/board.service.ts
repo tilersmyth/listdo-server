@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import slugify from 'slug';
+import * as slugify from 'slug';
 
 import { Board } from './interfaces/board.interface';
 import { UserService } from '../auth/user.service';
