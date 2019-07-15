@@ -1,18 +1,9 @@
-import { UserProfile } from '../../auth/interfaces/user-profile.interface';
-
-interface Payload {
-  messageId: string;
-  replyId: string;
-  from: UserProfile;
-  to: UserProfile[];
-  cc: UserProfile[];
-  subject: string;
-  bodyText: string | null;
-  bodyHtml: string | null;
-}
+import { EmailPayload } from './email-payload.interface';
+import { EmailMember } from './email-member.interface';
 
 export interface CreateDemo {
   board: string;
   list: string | null;
-  payload: Payload;
+  payload: EmailPayload;
+  members: EmailMember[];
 }

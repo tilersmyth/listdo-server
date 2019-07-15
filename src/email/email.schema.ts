@@ -7,49 +7,26 @@ export const EmailSchema = new mongoose.Schema(
       ref: 'Board',
     },
     list: { type: String, default: '' },
-    initiator: [
+    members: [
       {
-        email: String,
         user: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
         },
-      },
-    ],
-    partner: [
-      {
-        email: String,
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
+        role: {
+          type: String,
+          enum: ['initiator', 'partner', 'observer', 'removed'],
         },
       },
     ],
-    observer: [
-      {
-        email: String,
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-        },
-      },
-    ],
-    removed: [
-      {
-        email: String,
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'User',
-        },
-      },
-    ],
-    messageId: String,
-    replyId: String,
-    subject: String,
-    body: {
+    payload: {
+      messageId: String,
+      inReplyTo: String,
+      subject: String,
       text: String,
-      html: String,
-      preview: String,
+      textAsHtml: String,
+      textPreview: String,
+      date: Date,
     },
     status: {
       type: {
@@ -57,13 +34,12 @@ export const EmailSchema = new mongoose.Schema(
         enum: ['open', 'closed', 'pending'],
         default: 'open',
       },
-      user: {
-        email: String,
-        user: {
+      user: [
+        {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
         },
-      },
+      ],
       note: String,
     },
   },

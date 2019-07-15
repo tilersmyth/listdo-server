@@ -4,20 +4,22 @@ import { InjectModel } from '@nestjs/mongoose';
 import { PubSub } from 'graphql-subscriptions';
 
 import { CreateDemo } from './interfaces/create-demo.interface';
-import { Email } from './interfaces/email.interface';
+import { EmailSchema, EmailMember } from './interfaces';
 import { Task } from '../task/interfaces/task.interface';
 import { ListService } from '../list/list.service';
 import { NEW_TASK, PUBSUB } from '../constants';
+import { BoardService } from '../board/board.service';
 
 @Injectable()
 export class EmailDemoService {
   private readonly logger: LoggerService = new Logger();
 
   constructor(
-    @InjectModel('Email') private readonly emailModel: Model<Email>,
+    @InjectModel('Email') private readonly emailModel: Model<EmailSchema>,
     @InjectModel('Task') private readonly taskModel: Model<Task>,
     @Inject(PUBSUB) private readonly pubSub: PubSub,
     private readonly listService: ListService,
+    private readonly boardService: BoardService,
   ) {}
 
   private async taskList(userId: string, slug: string) {
@@ -25,18 +27,16 @@ export class EmailDemoService {
   }
 
   private async createTask(
-    userId: string,
-    email: Email,
-    role: 'initiator' | 'partner' | 'observer' | 'removed',
+    member: EmailMember,
+    email: EmailSchema,
     session: ClientSession,
-    // pubSub: PubSub,
   ): Promise<void> {
     const task = new this.taskModel();
-    task.user = userId;
+    task.user = member.user.id;
     task.email = email.id;
-    task.board = email.board;
-    task.role = role;
-    const list = await this.taskList(userId, email.list);
+    task.board = email.board.id;
+    task.role = member.role;
+    const list = await this.taskList(member.user.id, email.list);
     task.list = list.id;
     const savedTask = await task.save({ session });
 
@@ -44,7 +44,7 @@ export class EmailDemoService {
       newTask: savedTask,
     });
 
-    this.logger.log(`saved task (${role}): ${savedTask.id}`);
+    this.logger.log(`saved task (${member.role}): ${savedTask.id}`);
   }
 
   async createDemo(input: CreateDemo): Promise<boolean> {
@@ -54,32 +54,30 @@ export class EmailDemoService {
       try {
         // First create/save email model
         const email = new this.emailModel();
-        email.board = input.board;
-        email.intiator = input.payload.from;
-        email.partner = input.payload.to;
-        email.observer = input.payload.cc;
-        email.messageId = input.payload.messageId;
-        email.replyId = input.payload.replyId;
-        email.subject = input.payload.subject;
-        email.body.text = input.payload.bodyText;
-        email.body.html = input.payload.bodyHtml;
-        email.body.preview = input.payload.bodyText.substring(0, 50);
-        email.status.user = input.payload.from;
+
+        const board = await this.boardService.findById(input.board);
+
+        if (!board) {
+          throw new Error(`Board not found with id: ${input.board}`);
+        }
+
+        email.board = board.id;
+        email.members = input.members;
+        email.payload = input.payload;
+
+        const initiators = input.members.reduce(
+          (acc: string[], member: EmailMember) =>
+            member.role === 'initiator' ? [member.user.id, ...acc] : acc,
+          [],
+        );
+
+        email.status.user = initiators;
 
         const savedEmail = await email.save({ session });
         this.logger.log(`saved email: ${savedEmail.id}`);
 
-        // Add task to "initiator"
-        await this.createTask(
-          input.payload.from.id,
-          savedEmail,
-          'initiator',
-          session,
-        );
-
-        // Add task to each "partner"
-        for (const user of input.payload.to) {
-          await this.createTask(user.id, savedEmail, 'partner', session);
+        for (const member of input.members) {
+          await this.createTask(member, savedEmail, session);
         }
 
         await session.commitTransaction();

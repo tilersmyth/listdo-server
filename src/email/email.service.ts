@@ -3,8 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ClientSession } from 'mongoose';
 import { PubSub } from 'graphql-subscriptions';
 
-import { Email } from './interfaces/email.interface';
-import { ParsePayload } from '../send-grid/interfaces';
+import { EmailSchema, EmailMember, Email } from './interfaces';
 import { Task } from '../task/interfaces/task.interface';
 import { ListService } from '../list/list.service';
 import { NEW_TASK, PUBSUB } from '../constants';
@@ -14,7 +13,7 @@ export class EmailService {
   private readonly logger: LoggerService = new Logger('INBOUND PARSE');
 
   constructor(
-    @InjectModel('Email') private readonly emailModel: Model<Email>,
+    @InjectModel('Email') private readonly emailModel: Model<EmailSchema>,
     @InjectModel('Task') private readonly taskModel: Model<Task>,
     @Inject(PUBSUB) readonly pubSub: PubSub,
     private readonly listService: ListService,
@@ -25,17 +24,16 @@ export class EmailService {
   }
 
   private async createTask(
-    userId: string,
-    email: Email,
-    role: 'initiator' | 'partner' | 'observer' | 'removed',
+    member: EmailMember,
+    email: EmailSchema,
     session: ClientSession,
   ): Promise<void> {
     const task = new this.taskModel();
-    task.user = userId;
+    task.user = member.user.id;
     task.email = email.id;
-    task.board = email.board;
-    task.role = role;
-    const list = await this.taskList(userId, email.list);
+    task.board = email.board.id;
+    task.role = member.role;
+    const list = await this.taskList(member.user.id, email.list);
     task.list = list.id;
     const savedTask = await task.save({ session });
 
@@ -43,44 +41,37 @@ export class EmailService {
       newTask: savedTask,
     });
 
-    this.logger.log(`saved task (${role}): ${savedTask.id}`);
+    this.logger.log(`saved task (${member.role}): ${savedTask.id}`);
   }
 
-  public async findByMessageId(messageId: string): Promise<Email> {
+  public async findByMessageId(messageId: string): Promise<EmailSchema> {
     return this.emailModel.findOne({ messageId });
   }
 
-  public async create(input: ParsePayload) {
+  public async create(input: Email) {
     try {
       const session = await this.emailModel.db.startSession();
       session.startTransaction();
       try {
         const email = new this.emailModel(input);
-        email.board = input.listdo.board.id;
-        email.body.text = input.text;
-        email.body.html = input.html;
-        email.body.preview = input.text.substring(0, 50);
-        email.status.user = input.initiator.user;
+        email.board = input.board;
+        email.members = input.members;
+        email.payload = input.payload;
+
+        const initiators = input.members.reduce(
+          (acc: string[], member: EmailMember) =>
+            member.role === 'initiator' ? [member.user.id, ...acc] : acc,
+          [],
+        );
+
+        email.status.user = initiators;
 
         const savedEmail = await email.save({ session });
         this.logger.log(`saved email: ${savedEmail.id}`);
 
-        // Add task to "initiator"
-        await this.createTask(
-          input.initiator.user.id,
-          savedEmail,
-          'initiator',
-          session,
-        );
-
-        // Add task to each "partner"
-        for (const partner of input.partner) {
-          await this.createTask(
-            partner.user.id,
-            savedEmail,
-            'partner',
-            session,
-          );
+        // Add tasks to members
+        for (const member of input.members) {
+          await this.createTask(member, savedEmail, session);
         }
 
         await session.commitTransaction();

@@ -2,23 +2,27 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Response, NextFunction } from 'express';
 
 import { BoardService } from '../../board/board.service';
-import { ParseRequest } from '../interfaces';
+import { ParseRequest } from '../interfaces/request.interface';
 
 @Injectable()
-export class BoardGuardMiddleware implements NestMiddleware {
+export class BoardMiddleware implements NestMiddleware {
   constructor(private readonly boardService: BoardService) {}
 
-  async use(req: ParseRequest, _: Response, next: NextFunction) {
-    if (req.inbound.errors.length > 0) {
+  async use(
+    { mailparser, output }: ParseRequest,
+    _: Response,
+    next: NextFunction,
+  ) {
+    if (output.errors.length > 0) {
       next();
       return;
     }
 
-    const { listdo } = req.inbound.payload;
+    const { listdo } = mailparser;
 
-    const boardExists = await this.boardService.findBySlug(listdo.boardSlug);
-    if (!boardExists) {
-      req.inbound.errors = [
+    const board = await this.boardService.findBySlug(listdo.board);
+    if (!board) {
+      output.errors = [
         {
           path: 'inbound_parse_error',
           message: `Board does not exist for path: ${listdo.board}`,
@@ -29,7 +33,7 @@ export class BoardGuardMiddleware implements NestMiddleware {
       return;
     }
 
-    req.inbound.payload.listdo.board = boardExists;
+    output.email.board = board;
     next();
   }
 }

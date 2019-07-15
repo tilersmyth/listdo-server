@@ -1,28 +1,13 @@
-import { Document } from 'mongoose';
-import { UserProfile } from '../../auth/interfaces/user-profile.interface';
+import { Board } from '../../board/interfaces/board.interface';
 
-interface Body {
-  text: string;
-  html: string;
-  preview: string;
-}
+import { EmailStatus } from './email-status.interface';
+import { EmailMember } from './email-member.interface';
+import { EmailPayload } from './email-payload.interface';
 
-interface Status {
-  type: 'open' | 'closed' | 'pending';
-  user: UserProfile;
-  note: string;
-}
-
-export interface Email extends Document {
-  board: string;
+export interface Email {
+  board: Board;
   list: string | null;
-  intiator: UserProfile;
-  partner: UserProfile[];
-  observer: UserProfile[];
-  removed: UserProfile[];
-  messageId: string;
-  replyId: string;
-  subject: string;
-  body: Body;
-  status: Status;
+  members: EmailMember[];
+  payload: EmailPayload;
+  status: EmailStatus;
 }

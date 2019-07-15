@@ -1,8 +1,5 @@
-import { Board } from '../../board/interfaces/board.interface';
-
 export interface ParseListdo {
-  boardSlug: string;
-  board?: Board;
+  board: string;
   list?: string;
   address: string;
 }

@@ -7,7 +7,6 @@ import { SendGridController } from './send-grid.controller';
 import { SendGridService } from './send-grid.service';
 import { ParseMiddleware } from './middleware/parse.middleware';
 import { UserService } from '../auth/user.service';
-import { AuthGuardMiddleware } from './middleware/auth-guard.middleware';
 import { BoardSchema } from '../board/board.schema';
 import { BoardService } from '../board/board.service';
 import { ListSchema } from '../list/list.schema';
@@ -15,9 +14,11 @@ import { ListService } from '../list/list.service';
 import { EmailSchema } from '../email/email.schema';
 import { EmailService } from '../email/email.service';
 import { TaskSchema } from '../task/task.schema';
-import { BoardGuardMiddleware } from './middleware/board-guard.middleware';
-import { MemberGuardMiddleware } from './middleware/member-guard.middleware';
 import { pubSubService } from '../subscriptions/pubsub.service';
+import { SenderMiddleware } from './middleware/sender.middleware';
+import { BoardMiddleware } from './middleware/board.middleware';
+import { MemberMiddleware } from './middleware/member.middleware';
+import { ParseUtilService } from './utils/parse-util.service';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { pubSubService } from '../subscriptions/pubsub.service';
     ListService,
     EmailService,
     pubSubService,
+    ParseUtilService,
   ],
 })
 export class SendGridModule {
@@ -47,9 +49,9 @@ export class SendGridModule {
       .apply(
         this.multer.array('email'),
         ParseMiddleware,
-        AuthGuardMiddleware,
-        BoardGuardMiddleware,
-        MemberGuardMiddleware,
+        SenderMiddleware,
+        BoardMiddleware,
+        MemberMiddleware,
       )
       .forRoutes('send-grid');
   }
