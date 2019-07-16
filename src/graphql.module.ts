@@ -10,6 +10,7 @@ export class GraphQLModule {
   static async forRootAsync() {
     return GraphQL.forRootAsync({
       useFactory: async () => ({
+        cors: { credentials: true, origin: true },
         autoSchemaFile: 'schema.gql',
         context: async ({ req, res, connection }) => {
           req = connection ? { session: connection.context } : req;
