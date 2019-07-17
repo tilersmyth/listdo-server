@@ -8,10 +8,13 @@ const Schema = new mongoose.Schema(
     email: {
       type: String,
       lowercase: true,
-      required: [true, `can't be blank`],
-      match: [/\S+@\S+\.\S+/, 'is invalid'],
+      required: [true, `e-mail is required`],
+      match: [/\S+@\S+\.\S+/, 'e-mail is invalid'],
     },
-    password: String,
+    password: {
+      type: String,
+      required: [true, `password is required`],
+    },
     salt: String,
     boards: [
       {

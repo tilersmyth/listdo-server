@@ -19,7 +19,7 @@ export class AuthResolver {
     return this.userService.find();
   }
 
-  @Mutation(() => AuthDto, { nullable: true })
+  @Mutation(() => UserDto)
   async register(@Args('input') input: RegisterInput) {
     return this.authService.register(input);
   }

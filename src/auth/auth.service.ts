@@ -7,28 +7,30 @@ import { LoginInput } from './inputs/login.input';
 import { RegisterInput } from './inputs/register.input';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 import { AuthResponse } from './interfaces/auth.interface';
+import { ValidationService } from './validation.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly validationService: ValidationService,
+  ) {}
 
   private async findUser(email: string): Promise<User> {
     return this.userService.findUserAuth(email);
   }
 
-  public async register(input: RegisterInput): Promise<AuthResponse | null> {
-    const emailInUse = await this.findUser(input.email);
+  public async register(input: RegisterInput): Promise<User> {
+    const user = await this.findUser(input.email);
+    try {
+      if (user) {
+        throw this.validationService.error('email', 'e-mail already in use');
+      }
 
-    if (emailInUse) {
-      return {
-        path: 'email',
-        message: 'email already in use',
-      };
+      return this.userService.create(input);
+    } catch (error) {
+      throw error;
     }
-
-    await this.userService.create(input);
-
-    return null;
   }
 
   public async login(
