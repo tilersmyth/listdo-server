@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as slugify from 'slug';
+import * as mongoose from 'mongoose';
 
 import { Board } from './interfaces/board.interface';
 import { UserService } from '../auth/user.service';
@@ -32,12 +33,18 @@ export class BoardService {
     );
   }
 
-  async findById(id: string): Promise<Board> {
+  public async findById(id: string): Promise<Board> {
     return this.boardModel.findById(id);
   }
 
-  async findBySlug(slug: string): Promise<Board> {
+  public async findBySlug(slug: string): Promise<Board> {
     return this.boardModel.findOne({ slug });
+  }
+
+  public async findAll(ctx: ExpressContext): Promise<Board[]> {
+    const { user } = ctx.req.session;
+
+    return this.boardModel.find({ members: user._id });
   }
 
   public async create(

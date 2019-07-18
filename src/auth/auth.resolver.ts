@@ -1,6 +1,5 @@
 import { Resolver, Mutation, Args, Context, Query } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
 import { LoginInput } from './inputs/login.input';
 import { RegisterInput } from './inputs/register.input';
 import { ExpressContext } from '../types/context';
@@ -24,7 +23,7 @@ export class AuthResolver {
     return this.authService.register(input);
   }
 
-  @Mutation(() => AuthDto, { nullable: true })
+  @Mutation(() => UserDto)
   async login(
     @Args('input') input: LoginInput,
     @Context() ctx: ExpressContext,

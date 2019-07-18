@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Resolver, Mutation, Args, Context } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Context, Query } from '@nestjs/graphql';
 import { BoardService } from './board.service';
 import { CreateInput } from './inputs/create.input';
 import { CreateBoardDto } from './dto/create.dto';
@@ -8,10 +8,17 @@ import { AddMemberDto } from './dto/addMember.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { ExpressContext } from '../types/context';
 import { AddMemberGuard } from './guards/add-member.guard';
+import { BoardDto } from './dto/board.dto';
 
 @Resolver()
 export class BoardResolver {
   constructor(private readonly boardService: BoardService) {}
+
+  @Query(() => [BoardDto])
+  @UseGuards(AuthGuard)
+  async allBoards(@Context() ctx: ExpressContext) {
+    return this.boardService.findAll(ctx);
+  }
 
   @Mutation(() => CreateBoardDto)
   @UseGuards(AuthGuard)

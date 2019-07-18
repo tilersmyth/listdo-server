@@ -6,7 +6,6 @@ import { User } from './interfaces/user.interface';
 import { LoginInput } from './inputs/login.input';
 import { RegisterInput } from './inputs/register.input';
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
-import { AuthResponse } from './interfaces/auth.interface';
 import { ValidationService } from './validation.service';
 
 @Injectable()
@@ -33,31 +32,32 @@ export class AuthService {
     }
   }
 
-  public async login(
-    input: LoginInput,
-    req: Request,
-  ): Promise<AuthResponse | null> {
-    const user = await this.findUser(input.email);
+  public async login(input: LoginInput, req: Request): Promise<User> {
+    try {
+      const user = await this.findUser(input.email);
 
-    if (!user) {
-      return {
-        path: 'email',
-        message: 'invalid email or password',
-      };
+      if (!user) {
+        throw this.validationService.error(
+          'email',
+          'invalid email or password',
+        );
+      }
+
+      const validPassword = user.comparePassword(input.password);
+
+      if (!validPassword) {
+        throw this.validationService.error(
+          'email',
+          'invalid email or password',
+        );
+      }
+
+      req.session.userId = user.id;
+
+      return user;
+    } catch (error) {
+      throw error;
     }
-
-    const validPassword = user.comparePassword(input.password);
-
-    if (!validPassword) {
-      return {
-        path: 'email',
-        message: 'invalid email or password',
-      };
-    }
-
-    req.session.userId = user.id;
-
-    return null;
   }
 
   async logout(ctx: ExpressContext): Promise<boolean> {
