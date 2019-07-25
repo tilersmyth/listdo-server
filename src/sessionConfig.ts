@@ -5,14 +5,13 @@ import { redis } from './redis';
 
 export const sessionConfig = () => {
   const RedisStore = Store(session);
-
   const store = new RedisStore({
     client: redis as any,
   });
 
   return session({
     store,
-    name: 'listDo',
+    name: 'qid',
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,

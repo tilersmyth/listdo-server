@@ -1,5 +1,5 @@
-export interface EmailStatus {
+export interface TaskStatus {
   type?: 'open' | 'closed' | 'pending';
   user: string[];
-  note?: string;
+  message?: string;
 }

@@ -9,10 +9,10 @@ import { sessionConfig } from './sessionConfig';
 export class GraphQLModule {
   static async forRootAsync() {
     return GraphQL.forRootAsync({
-      useFactory: async () => ({
+      useFactory: () => ({
         cors: { credentials: true, origin: true },
         autoSchemaFile: 'schema.gql',
-        context: async ({ req, res, connection }) => {
+        context: ({ req, res, connection }) => {
           req = connection ? { session: connection.context } : req;
           return { req, res };
         },

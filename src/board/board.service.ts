@@ -2,15 +2,13 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as slugify from 'slug';
-import * as mongoose from 'mongoose';
 
 import { Board } from './interfaces/board.interface';
 import { UserService } from '../auth/user.service';
 import { User } from '../auth/interfaces/user.interface';
 import { CreateInput } from './inputs/create.input';
-import { CreateBoard } from './interfaces/create.interface';
-import { AddMemberInput } from './inputs/addMember.input';
-import { AddMember } from './interfaces/addMember.interface';
+import { AddMemberInput } from './inputs/add-member.input';
+import { AddMember } from './interfaces/add-member.interface';
 import { ExpressContext } from '../types/context';
 import { ListService } from '../list/list.service';
 
@@ -47,31 +45,32 @@ export class BoardService {
     return this.boardModel.find({ members: user._id });
   }
 
-  public async create(
-    input: CreateInput,
-    ctx: ExpressContext,
-  ): Promise<CreateBoard> {
-    const { user } = ctx.req.session;
+  public async create(input: CreateInput, ctx: ExpressContext): Promise<Board> {
+    try {
+      const { user } = ctx.req.session;
 
-    Object.assign(input, {
-      owner: user.id,
-      members: [user.id],
-    });
+      Object.assign(input, {
+        owner: user.id,
+        members: [user.id],
+      });
 
-    const board = new this.boardModel(input);
+      const board = new this.boardModel(input);
 
-    // to do: ensure slug is unique
-    board.slug = slugify(input.name, { lower: true });
-    const savedBoard = await board.save();
+      // to do: ensure slug is unique
+      board.slug = slugify(input.name, { lower: true });
+      const savedBoard = await board.save();
 
-    // Save board to user schema
-    user.boards = [savedBoard.id, ...user.boards];
-    await user.save();
+      // Save board to user schema
+      user.boards = [savedBoard.id, ...user.boards];
+      await user.save();
 
-    // Create default list unique to user on new board
-    await this.createDefaultList(savedBoard.id, user.id);
+      // Create default list unique to user on new board
+      await this.createDefaultList(savedBoard.id, user.id);
 
-    return { error: null, board: savedBoard };
+      return savedBoard;
+    } catch (err) {
+      throw err;
+    }
   }
 
   public async addMember(input: AddMemberInput): Promise<AddMember> {

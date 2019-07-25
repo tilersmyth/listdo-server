@@ -1,9 +1,11 @@
 import { InputType, Field, ID } from 'type-graphql';
 
 @InputType()
-export class MemberDemoInput {
+export class BoardTasksInput {
   @Field(() => ID)
-  readonly user: string;
+  readonly board: string;
+  @Field()
+  readonly status: string;
   @Field()
   readonly role: string;
 }

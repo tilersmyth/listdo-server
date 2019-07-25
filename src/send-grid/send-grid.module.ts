@@ -14,6 +14,7 @@ import { ListService } from '../list/list.service';
 import { EmailSchema } from '../email/email.schema';
 import { EmailService } from '../email/email.service';
 import { TaskSchema } from '../task/task.schema';
+import { TaskService } from '../task/task.service';
 import { pubSubService } from '../subscriptions/pubsub.service';
 import { SenderMiddleware } from './middleware/sender.middleware';
 import { BoardMiddleware } from './middleware/board.middleware';
@@ -37,6 +38,7 @@ import { ParseUtilService } from './utils/parse-util.service';
     BoardService,
     ListService,
     EmailService,
+    TaskService,
     pubSubService,
     ParseUtilService,
   ],

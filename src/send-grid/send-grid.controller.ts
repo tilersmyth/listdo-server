@@ -21,7 +21,7 @@ export class SendGridController {
       new Logger('WARNING').warn(warnings);
     }
 
-    new Logger('PAYLOAD').warn(email);
+    // new Logger('PAYLOAD').warn(email);
 
     await this.emailService.create(email as Email);
 

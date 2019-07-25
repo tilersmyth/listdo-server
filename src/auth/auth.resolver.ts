@@ -1,10 +1,14 @@
 import { Resolver, Mutation, Args, Context, Query } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+
 import { AuthService } from './auth.service';
 import { LoginInput } from './inputs/login.input';
 import { RegisterInput } from './inputs/register.input';
 import { ExpressContext } from '../types/context';
 import { UserDto } from './dto/user.dto.';
 import { UserService } from './user.service';
+import { AuthGuard } from './guards/auth.guard';
+import { UserEmailInput } from './inputs/user-email.input';
 
 @Resolver()
 export class AuthResolver {
@@ -16,6 +20,12 @@ export class AuthResolver {
   @Query(() => [UserDto])
   async allUsers() {
     return this.userService.find();
+  }
+
+  @Query(() => UserDto, { nullable: true })
+  @UseGuards(AuthGuard)
+  async findUserByEmail(@Args('input') input: UserEmailInput) {
+    return await this.userService.findByEmail(input.email);
   }
 
   @Mutation(() => UserDto)

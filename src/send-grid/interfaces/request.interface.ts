@@ -1,7 +1,8 @@
 import { Request } from 'express';
 import { ParsedMail } from 'mailparser';
 
-import { EmailPayload, EmailMember, EmailStatus } from '../../email/interfaces';
+import { EmailPayload, EmailMember } from '../../email/interfaces';
+import { TaskStatus } from '../../task/interfaces';
 import { ParseException } from './exception.interface';
 import { ParseListdo } from './listdo.interface';
 import { Board } from '../../board/interfaces/board.interface';
@@ -11,7 +12,7 @@ interface EmailOutput {
   list?: string | null;
   members?: EmailMember[];
   payload?: EmailPayload;
-  status?: EmailStatus;
+  status?: TaskStatus;
 }
 
 interface ParsedOutput {

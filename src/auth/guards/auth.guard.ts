@@ -10,6 +10,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const ctx = GqlExecutionContext.create(context);
     const req: Request = ctx.getContext().req;
+
     if (req.session && req.session.userId) {
       // Ensure user exists
       const user = await this.userService.findById(req.session.userId);
@@ -23,6 +24,7 @@ export class AuthGuard implements CanActivate {
 
       return true;
     }
+
     return false;
   }
 }

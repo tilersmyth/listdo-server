@@ -1,7 +1,7 @@
 import { Resolver, Subscription } from '@nestjs/graphql';
 import * as mongoose from 'mongoose';
 
-import { NewTaskDto } from '../task/dto/newTask.dto';
+import { NewTaskDto } from '../task/dto/new-task.dto';
 import { SubscriptionsService } from './subscriptions.service';
 
 @Resolver('Subscriptions')
